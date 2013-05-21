@@ -14,11 +14,35 @@ use OneMightyRoar\PhpFileManager\FileObject;
 class FileObjectTest extends STRIPPED_FROM_HISTORY
 {
 
-    const TEST_DATA_FILES_DIRECTORY = 'TestDataFiles';
+    const TEST_DATA_FILES_DIRECTORY = '/TestDataFiles/';
 
-    protected function getTestFiles()
+    protected function getTestFiles($file = null)
     {
-        return glob(self::TEST_DATA_FILES_DIRECTORY);
+        $files = glob(__DIR__ . self::TEST_DATA_FILES_DIRECTORY . '*');
+
+        if (null !== $file) {
+            return $files[$file];
+        }
+
+        return $files;
+    }
+
+    protected function getTestFileByBaseName($basename)
+    {
+        $files = $this->getTestFiles();
+
+        $found = null;
+
+        $filtered = array_map(
+            function ($key) use ($basename, &$found) {
+                if (strpos(basename($key), $basename) !== false) {
+                    $found = $key;
+                }
+            },
+            $files
+        );
+
+        return $found;
     }
 
     public function testCreateFromBinary()
@@ -33,6 +57,8 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
         $this->assertSame($test_name, $file_object_with_name->getName());
 
         $this->assertSame($binary_file_data, $file_object->getRaw(), $file_object_with_name->getRaw());
+
+        return $file_object_with_name;
     }
 
     public function testCreateFromBase64Encoded()
@@ -48,6 +74,24 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
         $this->assertSame($test_name, $file_object_with_name->getName());
 
         $this->assertSame($test_string, $file_object->getRaw(), $file_object_with_name->getRaw());
+
+        return $file_object_with_name;
+    }
+
+    public function testCreateFromBase64EncodedWithImage()
+    {
+        $test_file = file_get_contents($this->getTestFileByBaseName('photo.base64'));
+        $test_name = 'testtttttt';
+
+        $file_object = FileObject::createFromBase64Encoded($test_file);
+        $file_object_with_name = FileObject::createFromBase64Encoded($test_file, $test_name);
+
+        $this->assertSame(FileObject::DEFAULT_NAME, $file_object->getName());
+        $this->assertSame($test_name, $file_object_with_name->getName());
+
+        $this->assertSame($test_string, $file_object->getRaw(), $file_object_with_name->getRaw());
+
+        return $file_object_with_name;
     }
 
     public function testGetSetName()
@@ -76,5 +120,22 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
 
         $this->assertNotNull($file_object->getMimeType());
         $this->assertSame($test_mime_type, $file_object->getMimeType());
+    }
+
+    public function testDetectMimeType()
+    {
+        $test_file = $this->getTestFileByBaseName('photo.jpg');
+
+        $file_object = new FileObject($test_file);
+
+        $this->assertNotNull($file_object->detectMimeType());
+    }
+
+    /**
+     * @depends testCreateFromBase64Encoded
+     */
+    public function testDetectMimeTypeFromBase64($file_object)
+    {
+        $this->assertNotNull($file_object->detectMimeType());
     }
 }
