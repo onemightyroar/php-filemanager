@@ -188,7 +188,7 @@ class FileObject extends SplFileObject
 
         $finfo = new finfo(FILEINFO_MIME_TYPE);
 
-        return $finfo->file($this->getFilename());
+        return $finfo->file($this->getPathname());
     }
 
     /**
