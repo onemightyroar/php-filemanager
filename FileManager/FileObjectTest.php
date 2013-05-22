@@ -16,6 +16,11 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
 
     const TEST_DATA_FILES_DIRECTORY = '/TestDataFiles/';
 
+
+    /**
+     * Test helpers
+     */
+
     protected function getTestFiles($file = null)
     {
         $files = glob(__DIR__ . self::TEST_DATA_FILES_DIRECTORY . '*');
@@ -44,6 +49,18 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
 
         return $found;
     }
+
+    protected function getTestWrappedBase64($string = null)
+    {
+        $string = $string ?: 'test text and hot dog flavored water';
+
+        return 'data://text/plain;base64,'. base64_encode($string);
+    }
+
+
+    /**
+     * Test methods
+     */
 
     public function testCreateFromBinary()
     {
@@ -185,6 +202,21 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
         $this->assertTrue($file_object->isWrapped());
     }
 
+    public function testIsWrappedBase64()
+    {
+        $file_object = new FileObject($this->getTestWrappedBase64());
+
+        $this->assertTrue($file_object->isWrappedBase64());
+    }
+
+    /**
+     * @depends testCreateFromBinary
+     */
+    public function testIsWrappedHex($file_object)
+    {
+        $this->assertTrue($file_object->isWrappedHex());
+    }
+
     public function testGetRaw()
     {
         $test_file_jpg = $this->getTestFileByBaseName('photo.jpg');
@@ -207,5 +239,30 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
         $this->assertSame(file_get_contents($test_file_base64), $raw_base64->getRaw());
         $this->assertSame($test_text, $raw_base64_text->getRaw());
         $this->assertSame($test_text, $raw_text->getRaw());
+    }
+
+    public function testGetBase64()
+    {
+        $test_file_jpg = $this->getTestFileByBaseName('photo.jpg');
+        $test_file_base64 = $this->getTestFileByBaseName('photo.base64');
+        $test_file_base64_chunked = $this->getTestFileByBaseName('photo.chunked.base64');
+        $test_text = 'this is a test';
+        $test_text_mime = 'text/donkey';
+
+        $wrapped_binary = FileObject::createFromBinary(file_get_contents($test_file_jpg));
+        $wrapped_base64_image = FileObject::createFromBinary(file_get_contents($test_file_base64));
+        $raw_binary = new FileObject($this->getTestFileByBaseName('photo.jpg'));
+        $raw_base64_text = new FileObject('data://'. $test_text_mime .';base64,'. base64_encode($test_text));
+        $raw_text = new FileObject('data://'. $test_text_mime .','. $test_text);
+
+        $this->assertSame(base64_encode(file_get_contents($test_file_jpg)), $wrapped_binary->getBase64(false));
+        $this->assertSame(base64_encode(file_get_contents($test_file_base64)), $wrapped_base64_image->getBase64(false));
+        $this->assertSame(base64_encode(file_get_contents($test_file_jpg)), $raw_binary->getBase64(false));
+        $this->assertSame(base64_encode($test_text), $raw_base64_text->getBase64(false));
+        $this->assertSame(base64_encode($test_text), $raw_text->getBase64(false));
+
+        // Test chunked
+        $this->assertSame(file_get_contents($test_file_base64_chunked), $raw_binary->getBase64());
+        $this->assertSame(base64_decode(file_get_contents($test_file_base64_chunked)), $raw_binary->getRaw());
     }
 }
