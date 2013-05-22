@@ -27,8 +27,27 @@ class FileObject extends SplFileObject
      * Class constants
      */
 
+    /**
+     * The default name to give protocol wrapped files
+     *
+     * @const string
+     */
     const DEFAULT_NAME = 'temp';
+
+    /**
+     * The regular expression used to get info about the wrapper
+     *
+     * @const string
+     */
     const DATA_WRAPPER_REGEX = '/^([A-Za-z0-9]+):[\/]*(.*?)(?:;(.*))?,/';
+
+    /**
+     * The default hashing algorithm to use for hashing methods
+     *
+     * @const string
+     */
+    const DEFAULT_HASH_ALGO = 'md5';
+
 
     /**
      * Class properties
@@ -359,6 +378,42 @@ class FileObject extends SplFileObject
             chunk_split(base64_encode($this->getRaw()))
             : base64_encode($this->getRaw())
         );
+    }
+
+    /**
+     * Get a hash representation of the file's data
+     *
+     * @param string $algo Defaults to self::DEFAULT_HASH_ALGO
+     * @access public
+     * @return string
+     */
+    public function getHash($algo = self::DEFAULT_HASH_ALGO)
+    {
+        // Check if the algo is supported
+        if (in_array($algo, hash_algos()) !== true) {
+            throw new InvalidArgumentException('Hash algorithm not supported by your system');
+        }
+
+        return hash($algo, $this->getRaw());
+    }
+
+    /**
+     * Get a hash representation of the file's name
+     *
+     * @param string $algo Defaults to self::DEFAULT_HASH_ALGO
+     * @access public
+     * @return string
+     */
+    public function getNameHash($algo = self::DEFAULT_HASH_ALGO)
+    {
+        // Check if the algo is supported
+        if (in_array($algo, hash_algos()) !== true) {
+            throw new InvalidArgumentException('Hash algorithm not supported by your system');
+        }
+
+        $name = $this->getName() ?: $this->getFilename();
+
+        return hash($algo, $name);
     }
 
 

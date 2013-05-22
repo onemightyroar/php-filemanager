@@ -266,6 +266,38 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
         $this->assertSame(base64_decode(file_get_contents($test_file_base64_chunked)), $raw_binary->getRaw());
     }
 
+    public function testGetHash()
+    {
+        $test_file_jpg = $this->getTestFileByBaseName('photo.jpg');
+        $test_file_base64 = $this->getTestFileByBaseName('photo.base64');
+
+        $wrapped_binary = FileObject::createFromBinary(file_get_contents($test_file_jpg));
+        $wrapped_base64 = FileObject::createFromBinary(file_get_contents($test_file_base64));
+        $raw_binary = new FileObject($this->getTestFileByBaseName('photo.jpg'));
+        $raw_base64 = new FileObject($this->getTestFileByBaseName('photo.base64'));
+
+        $this->assertSame($raw_binary->getHash(), $wrapped_binary->getHash());
+        $this->assertSame($raw_base64->getHash(), $wrapped_base64->getHash());
+
+        $this->assertNotSame($raw_binary->getHash(), $raw_base64->getHash());
+        $this->assertNotSame($wrapped_binary->getHash(), $wrapped_base64->getHash());
+    }
+
+    public function testGetNameHash()
+    {
+        $test_file_jpg = $this->getTestFileByBaseName('photo.jpg');
+        $test_file_base64 = $this->getTestFileByBaseName('photo.base64');
+
+        $wrapped_binary = FileObject::createFromBinary(file_get_contents($test_file_jpg));
+        $wrapped_base64 = FileObject::createFromBinary(file_get_contents($test_file_base64));
+        $raw_binary = new FileObject($this->getTestFileByBaseName('photo.jpg'));
+        $raw_base64 = new FileObject($this->getTestFileByBaseName('photo.base64'));
+
+        $this->assertSame($wrapped_binary->getNameHash(), $wrapped_base64->getNameHash());
+
+        $this->assertNotSame($raw_binary->getNameHash(), $raw_base64->getNameHash());
+    }
+
     public function testMimeAliases()
     {
         $image_file_obj = new FileObject($this->getTestFileByBaseName('photo.jpg'));
