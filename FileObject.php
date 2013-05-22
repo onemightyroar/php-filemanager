@@ -81,7 +81,15 @@ class FileObject extends SplFileObject
         // Create a temporary file name if none was given
         $name = $name ?: static::DEFAULT_NAME;
 
+        // Set a default MIME-type. "octet-stream" is generic and RFC safe
         $mime_type = 'application/octet-stream';
+
+        // Try and auto-detect the MIME-type
+        try {
+            $mime_type = static::detectMimeTypeFromBuffer($raw_binary_data);
+        } catch (RuntimeException $e) {
+            // Must have the fileinfo extension loaded to automatically detect the MIME type
+        }
 
         // Wrap our binary data in a SplFileObject compatible data stream
         $stream_wrapped = 'data://'. $mime_type .','. bin2hex($raw_binary_data);
@@ -193,6 +201,23 @@ class FileObject extends SplFileObject
         $finfo = new finfo(FILEINFO_MIME_TYPE);
 
         return $finfo->file($this->getPathname());
+    }
+
+    /**
+     * Try and detect the MIME type from a passed string buffer
+     *
+     * @param string $buffer The string buffer to detect the MIME type from
+     * @static
+     * @access public
+     * @return string
+     */
+    public static function detectMimeTypeFromBuffer($buffer)
+    {
+        static::checkFileinfoExtension();
+
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+
+        return $finfo->buffer($buffer);
     }
 
     /**
