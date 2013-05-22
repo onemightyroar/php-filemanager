@@ -80,11 +80,14 @@ class FileObject extends SplFileObject
         // Create a temporary file name if none was given
         $name = $name ?: static::DEFAULT_NAME;
 
+        $mime_type = 'application/octet-stream';
+
         // Wrap our binary data in a SplFileObject compatible data stream
-        $stream_wrapped = 'data://application/octet-stream,'. $raw_binary_data;
+        $stream_wrapped = 'data://'. $mime_type .','. bin2hex($raw_binary_data);
 
         $object = new static($stream_wrapped, 'r');
         $object->setName($name);
+        $object->setMimeType($mime_type);
 
         return $object;
     }
@@ -105,7 +108,7 @@ class FileObject extends SplFileObject
             throw new InvalidArgumentException('Expected a base64 encoded string');
         }
 
-        $decoded = base64_decode($base64_encoded_data, true);
+        $decoded = base64_decode(chunk_split($base64_encoded_data), true);
 
         if ($decoded === false) {
             throw new InvalidBase64EncodedDataException();
@@ -192,6 +195,36 @@ class FileObject extends SplFileObject
     }
 
     /**
+     * Get information about the data wrapper/protocol
+     * used for the current file object
+     *
+     * @access public
+     * @return array[string]
+     */
+    public function getWrapperInfo()
+    {
+        // Only get the first 100 characters of the pathname,
+        // as it could be a full hex representation of a file
+        $pathname = substr($this->getPathname(), 0, 100);
+
+        preg_match('/^([A-Za-z0-9]+):[\/]*(.*?),/', $pathname, $matches);
+
+        return $matches;
+    }
+
+    /**
+     * Quick check to see if the file object was created
+     * from a protocol wrapper
+     *
+     * @access public
+     * @return boolean
+     */
+    public function isWrapped()
+    {
+        return (count($this->getWrapperInfo()) > 0);
+    }
+
+    /**
      * Get the file's data as a string
      *
      * WARNING! NOTE! This can be very memory intensive, as it loops and stores
@@ -210,6 +243,28 @@ class FileObject extends SplFileObject
             $raw .= $this->fgets();
         }
 
+        if ($this->isWrapped()) {
+            return hex2bin($raw);
+        }
+
         return $raw;
+    }
+
+    /**
+     * Get the file data as a base64 encoded string
+     *
+     * By default, the base64 encoded string is split into new-lines to conform
+     * with the specification in RFC 2045
+     *
+     * @param boolean $chunked Should we split the encoded data to conform to RFC 2045?
+     * @access public
+     * @return string
+     */
+    public function getBase64($chunked = true)
+    {
+        return ($chunked ?
+            chunk_split(base64_encode($this->getRaw()))
+            : base64_encode($this->getRaw())
+        );
     }
 }
