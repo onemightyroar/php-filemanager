@@ -127,10 +127,21 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
     public function testDetectMimeType()
     {
         $test_file = $this->getTestFileByBaseName('photo.jpg');
+        $test_mime = 'image/jpeg';
 
         $file_object = new FileObject($test_file);
 
         $this->assertNotNull($file_object->detectMimeType());
+        $this->assertSame($test_mime, $file_object->detectMimeType());
+    }
+
+    public function testDetectMimeTypeFromBuffer()
+    {
+        $test_file = file_get_contents($this->getTestFileByBaseName('photo.jpg'));
+        $test_mime = 'image/jpeg';
+
+        $this->assertNotNull(FileObject::detectMimeTypeFromBuffer($test_file));
+        $this->assertSame($test_mime, FileObject::detectMimeTypeFromBuffer($test_file));
     }
 
     /**
@@ -139,5 +150,6 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
     public function testDetectMimeTypeFromBase64($file_object)
     {
         $this->assertNotNull($file_object->detectMimeType());
+        $this->assertSame('text/plain', $file_object->detectMimeType());
     }
 }
