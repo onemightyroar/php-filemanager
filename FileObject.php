@@ -117,13 +117,29 @@ class FileObject extends SplFileObject
             throw new InvalidArgumentException('Expected a base64 encoded string');
         }
 
+        $decoded = static::base64Decode($base64_encoded_data);
+
+        return static::createFromBinary($decoded, $name);
+    }
+
+    /**
+     * A consistent and dependable way to decode base64 data
+     *
+     * @param string $base64_encoded_data
+     * @throws InvalidBase64EncodedDataException If the base64 encoded data refuses to decode
+     * @static
+     * @access public
+     * @return string
+     */
+    public static function base64Decode($base64_encoded_data)
+    {
         $decoded = base64_decode(chunk_split($base64_encoded_data), true);
 
         if ($decoded === false) {
             throw new InvalidBase64EncodedDataException();
         }
 
-        return static::createFromBinary($decoded, $name);
+        return $decoded;
     }
 
     /**
@@ -238,7 +254,17 @@ class FileObject extends SplFileObject
 
         preg_match(static::DATA_WRAPPER_REGEX, $pathname, $matches);
 
-        return $matches;
+        if (count($matches) < 1) {
+            return false;
+        }
+
+        // Give the array matches keys
+        return array(
+            'wrapper' => $matches[0],
+            'protocol' => $matches[1],
+            'MIME' => $matches[2],
+            'base64' => !empty($matches[3]),
+        );
     }
 
     /**
@@ -250,7 +276,45 @@ class FileObject extends SplFileObject
      */
     public function isWrapped()
     {
-        return (count($this->getWrapperInfo()) > 0);
+        return ($this->getWrapperInfo() !== false);
+    }
+
+    /**
+     * Quick check to see if the file object was created
+     * from a base64-style protocol wrapper
+     *
+     * @access public
+     * @return boolean
+     */
+    public function isWrappedBase64()
+    {
+        if ($this->isWrapped()) {
+            $info = $this->getWrapperInfo();
+
+            return $info['base64'];
+        }
+
+        return false;
+    }
+
+    /**
+     * Quick check to see if the file object was created
+     * from a hexadecimal encoded protocol wrapper
+     *
+     * @access public
+     * @return boolean
+     */
+    public function isWrappedHex()
+    {
+        if ($this->isWrapped()) {
+
+            return ctype_xdigit(
+                // Grab the wrapped data, but strip the protocol from the beginning
+                ltrim(strstr($this->getPathname(), ','), ',')
+            );
+        }
+
+        return false;
     }
 
     /**
@@ -272,7 +336,7 @@ class FileObject extends SplFileObject
             $raw .= $this->fgets();
         }
 
-        if ($this->isWrapped()) {
+        if ($this->isWrappedHex()) {
             return hex2bin($raw);
         }
 
