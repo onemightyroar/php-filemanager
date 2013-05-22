@@ -28,6 +28,7 @@ class FileObject extends SplFileObject
      */
 
     const DEFAULT_NAME = 'temp';
+    const DATA_WRAPPER_REGEX = '/^([A-Za-z0-9]+):[\/]*(.*?)(?:;(.*))?,/';
 
     /**
      * Class properties
@@ -207,7 +208,7 @@ class FileObject extends SplFileObject
         // as it could be a full hex representation of a file
         $pathname = substr($this->getPathname(), 0, 100);
 
-        preg_match('/^([A-Za-z0-9]+):[\/]*(.*?),/', $pathname, $matches);
+        preg_match(static::DATA_WRAPPER_REGEX, $pathname, $matches);
 
         return $matches;
     }
