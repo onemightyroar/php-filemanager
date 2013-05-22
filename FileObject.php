@@ -80,6 +80,36 @@ class FileObject extends SplFileObject
      */
 
     /**
+     * Constructor
+     *
+     * @see SplFileObject::__construct()
+     * @param string $filename
+     * @param string $open_mode
+     * @param bool $use_include_path
+     * @param resource $context
+     * @access public
+     */
+    public function __construct($filename, $open_mode = 'r', $use_include_path = false, $context = null)
+    {
+        // The SplFileObject constructor doesn't allow NULL contexts... :/
+        if (null !== $context) {
+            parent::__construct($filename, $open_mode, $use_include_path, $context);
+        } else {
+            parent::__construct($filename, $open_mode, $use_include_path);
+        }
+
+
+        $this->setName($this->getFilename());
+
+        // Try and auto-detect the MIME-type
+        try {
+            $this->setMimeType($this->detectMimeType());
+        } catch (RuntimeException $e) {
+            // Must have the fileinfo extension loaded to automatically detect the MIME type
+        }
+    }
+
+    /**
      * Create an instance of a FileObject from a binary string
      *
      * Allows the creation of a FileObject from a string obtained from a
@@ -329,7 +359,7 @@ class FileObject extends SplFileObject
 
             return ctype_xdigit(
                 // Grab the wrapped data, but strip the protocol from the beginning
-                ltrim(strstr($this->getPathname(), ','), ',')
+                substr(strstr($this->getPathname(), ','), 1)
             );
         }
 
@@ -414,6 +444,42 @@ class FileObject extends SplFileObject
         $name = $this->getName() ?: $this->getFilename();
 
         return hash($algo, $name);
+    }
+
+    /**
+     * Get the extension of the file
+     *
+     * @access public
+     * @return string
+     */
+    public function getExtension($with_dot = false)
+    {
+        $extension = null;
+
+        if (null !== $this->getName() && strpos($this->getName(), '.') !== false) {
+            $extension = substr(strrchr($this->getName(), '.'), 1);
+        } else {
+            $extension = parent::getExtension();
+        }
+
+        // Is our extension still "empty"?
+        if (empty($extension)) {
+            // Try to infer our extension based on our MIME-type
+            $extension = substr(strrchr($this->getMimeType(), '/'), 1);
+
+            if (strpos($extension, '.') !== false) {
+                $extension = substr(strrchr($extension, '.'), 1);
+            }
+            if (strpos($extension, '-') !== false) {
+                $extension = substr(strrchr($extension, '-'), 1);
+            }
+        }
+
+        if ($with_dot) {
+            $extension = '.' . $extension;
+        }
+
+        return $extension;
     }
 
 

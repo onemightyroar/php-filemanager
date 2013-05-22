@@ -119,7 +119,7 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
 
         $file_object = new FileObject(__FILE__);
 
-        $this->assertNull($file_object->getName());
+        $this->assertNotSame($test_name, $file_object->getName());
 
         $file_object->setName($test_name);
 
@@ -133,7 +133,7 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
 
         $file_object = new FileObject(__FILE__);
 
-        $this->assertNull($file_object->getMimeType());
+        $this->assertNotSame($test_mime_type, $file_object->getMimeType());
 
         $file_object->setMimeType($test_mime_type);
 
@@ -296,6 +296,31 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
         $this->assertSame($wrapped_binary->getNameHash(), $wrapped_base64->getNameHash());
 
         $this->assertNotSame($raw_binary->getNameHash(), $raw_base64->getNameHash());
+    }
+
+    public function testGetExtension()
+    {
+        $test_file_jpg = $this->getTestFileByBaseName('photo.jpg');
+        $test_file_base64 = $this->getTestFileByBaseName('photo.base64');
+        $test_file_php = __FILE__;
+
+        $wrapped_binary = FileObject::createFromBinary(file_get_contents($test_file_jpg));
+        $wrapped_base64 = FileObject::createFromBinary(file_get_contents($test_file_base64));
+        $wrapped_binary_php = FileObject::createFromBinary(file_get_contents($test_file_php));
+        $raw_binary = new FileObject($this->getTestFileByBaseName('photo.jpg'));
+        $raw_base64 = new FileObject($this->getTestFileByBaseName('photo.base64'));
+        $raw_binary_php = new FileObject($test_file_php);
+
+        $this->assertSame('jpeg', $wrapped_binary->getExtension());
+        $this->assertSame('plain', $wrapped_base64->getExtension());
+        $this->assertSame('c++', $wrapped_binary_php->getExtension());
+        $this->assertSame('jpg', $raw_binary->getExtension());
+        $this->assertSame('base64', $raw_base64->getExtension());
+        $this->assertSame('php', $raw_binary_php->getExtension());
+
+        // With dot?
+        $this->assertNotContains('.', $wrapped_binary->getExtension(false));
+        $this->assertContains('.', $wrapped_binary->getExtension(true));
     }
 
     public function testMimeAliases()
