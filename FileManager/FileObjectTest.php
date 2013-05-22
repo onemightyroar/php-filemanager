@@ -227,8 +227,8 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
         $wrapped_binary = FileObject::createFromBinary(file_get_contents($test_file_jpg));
         $wrapped_base64_raw = FileObject::createFromBinary(base64_encode($test_text));
         $wrapped_base64_image = FileObject::createFromBinary(file_get_contents($test_file_base64));
-        $raw_binary = new FileObject($this->getTestFileByBaseName('photo.jpg'));
-        $raw_base64 = new FileObject($this->getTestFileByBaseName('photo.base64'));
+        $raw_binary = new FileObject($test_file_jpg);
+        $raw_base64 = new FileObject($test_file_base64);
         $raw_base64_text = new FileObject('data://'. $test_text_mime .';base64,'. base64_encode($test_text));
         $raw_text = new FileObject('data://'. $test_text_mime .','. $test_text);
 
@@ -251,7 +251,7 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
 
         $wrapped_binary = FileObject::createFromBinary(file_get_contents($test_file_jpg));
         $wrapped_base64_image = FileObject::createFromBinary(file_get_contents($test_file_base64));
-        $raw_binary = new FileObject($this->getTestFileByBaseName('photo.jpg'));
+        $raw_binary = new FileObject($test_file_jpg);
         $raw_base64_text = new FileObject('data://'. $test_text_mime .';base64,'. base64_encode($test_text));
         $raw_text = new FileObject('data://'. $test_text_mime .','. $test_text);
 
@@ -273,8 +273,8 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
 
         $wrapped_binary = FileObject::createFromBinary(file_get_contents($test_file_jpg));
         $wrapped_base64 = FileObject::createFromBinary(file_get_contents($test_file_base64));
-        $raw_binary = new FileObject($this->getTestFileByBaseName('photo.jpg'));
-        $raw_base64 = new FileObject($this->getTestFileByBaseName('photo.base64'));
+        $raw_binary = new FileObject($test_file_jpg);
+        $raw_base64 = new FileObject($test_file_base64);
 
         $this->assertSame($raw_binary->getHash(), $wrapped_binary->getHash());
         $this->assertSame($raw_base64->getHash(), $wrapped_base64->getHash());
@@ -290,8 +290,8 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
 
         $wrapped_binary = FileObject::createFromBinary(file_get_contents($test_file_jpg));
         $wrapped_base64 = FileObject::createFromBinary(file_get_contents($test_file_base64));
-        $raw_binary = new FileObject($this->getTestFileByBaseName('photo.jpg'));
-        $raw_base64 = new FileObject($this->getTestFileByBaseName('photo.base64'));
+        $raw_binary = new FileObject($test_file_jpg);
+        $raw_base64 = new FileObject($test_file_base64);
 
         $this->assertSame($wrapped_binary->getNameHash(), $wrapped_base64->getNameHash());
 
@@ -307,8 +307,8 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
         $wrapped_binary = FileObject::createFromBinary(file_get_contents($test_file_jpg));
         $wrapped_base64 = FileObject::createFromBinary(file_get_contents($test_file_base64));
         $wrapped_binary_php = FileObject::createFromBinary(file_get_contents($test_file_php));
-        $raw_binary = new FileObject($this->getTestFileByBaseName('photo.jpg'));
-        $raw_base64 = new FileObject($this->getTestFileByBaseName('photo.base64'));
+        $raw_binary = new FileObject($test_file_jpg);
+        $raw_base64 = new FileObject($test_file_base64);
         $raw_binary_php = new FileObject($test_file_php);
 
         $this->assertSame('jpeg', $wrapped_binary->getExtension());
