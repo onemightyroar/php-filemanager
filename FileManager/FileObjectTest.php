@@ -161,4 +161,51 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
         $this->assertNotNull($file_object->detectMimeType());
         $this->assertSame('image/jpeg', $file_object->detectMimeType());
     }
+
+    /**
+     * @depends testCreateFromBinary
+     */
+    public function testGetWrapperInfo($file_object)
+    {
+        $test_protocol = 'data';
+        $test_mime = 'image/jpeg';
+
+        $wrapper_info = $file_object->getWrapperInfo();
+
+        $this->assertGreaterThanOrEqual(3, $wrapper_info);
+        $this->assertSame($test_protocol, $wrapper_info['protocol']);
+        $this->assertSame($test_mime, $wrapper_info['MIME']);
+    }
+
+    /**
+     * @depends testCreateFromBinary
+     */
+    public function testIsWrapped($file_object)
+    {
+        $this->assertTrue($file_object->isWrapped());
+    }
+
+    public function testGetRaw()
+    {
+        $test_file_jpg = $this->getTestFileByBaseName('photo.jpg');
+        $test_file_base64 = $this->getTestFileByBaseName('photo.base64');
+        $test_text = 'this is a test';
+        $test_text_mime = 'text/donkey';
+
+        $wrapped_binary = FileObject::createFromBinary(file_get_contents($test_file_jpg));
+        $wrapped_base64_raw = FileObject::createFromBinary(base64_encode($test_text));
+        $wrapped_base64_image = FileObject::createFromBinary(file_get_contents($test_file_base64));
+        $raw_binary = new FileObject($this->getTestFileByBaseName('photo.jpg'));
+        $raw_base64 = new FileObject($this->getTestFileByBaseName('photo.base64'));
+        $raw_base64_text = new FileObject('data://'. $test_text_mime .';base64,'. base64_encode($test_text));
+        $raw_text = new FileObject('data://'. $test_text_mime .','. $test_text);
+
+        $this->assertSame(file_get_contents($test_file_jpg), $wrapped_binary->getRaw());
+        $this->assertSame(file_get_contents($test_file_base64), $wrapped_base64_image->getRaw());
+        $this->assertSame(base64_encode($test_text), $wrapped_base64_raw->getRaw());
+        $this->assertSame(file_get_contents($test_file_jpg), $raw_binary->getRaw());
+        $this->assertSame(file_get_contents($test_file_base64), $raw_base64->getRaw());
+        $this->assertSame($test_text, $raw_base64_text->getRaw());
+        $this->assertSame($test_text, $raw_text->getRaw());
+    }
 }
