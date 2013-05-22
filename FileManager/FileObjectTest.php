@@ -152,4 +152,13 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
         $this->assertNotNull($file_object->detectMimeType());
         $this->assertSame('text/plain', $file_object->detectMimeType());
     }
+
+    /**
+     * @depends testCreateFromBase64EncodedWithImage
+     */
+    public function testDetectMimeTypeFromBase64WithImage($file_object)
+    {
+        $this->assertNotNull($file_object->detectMimeType());
+        $this->assertSame('image/jpeg', $file_object->detectMimeType());
+    }
 }
