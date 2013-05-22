@@ -47,7 +47,9 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
 
     public function testCreateFromBinary()
     {
-        $binary_file_data = file_get_contents(__FILE__);
+        $test_file = $this->getTestFileByBaseName('photo.jpg');
+
+        $binary_file_data = file_get_contents($test_file);
         $test_name = 'testtttttt';
 
         $file_object = FileObject::createFromBinary($binary_file_data);
@@ -89,7 +91,7 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
         $this->assertSame(FileObject::DEFAULT_NAME, $file_object->getName());
         $this->assertSame($test_name, $file_object_with_name->getName());
 
-        $this->assertSame($test_string, $file_object->getRaw(), $file_object_with_name->getRaw());
+        $this->assertSame(base64_decode($test_file), $file_object->getRaw(), $file_object_with_name->getRaw());
 
         return $file_object_with_name;
     }
