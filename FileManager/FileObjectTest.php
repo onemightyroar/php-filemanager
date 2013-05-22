@@ -265,4 +265,16 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
         $this->assertSame(file_get_contents($test_file_base64_chunked), $raw_binary->getBase64());
         $this->assertSame(base64_decode(file_get_contents($test_file_base64_chunked)), $raw_binary->getRaw());
     }
+
+    public function testMimeAliases()
+    {
+        $image_file_obj = new FileObject($this->getTestFileByBaseName('photo.jpg'));
+        $text_file_obj = FileObject::createFromBinary('test and stuff');
+
+        $this->assertTrue($image_file_obj->isImage());
+        $this->assertFalse($text_file_obj->isImage());
+
+        $this->assertTrue($text_file_obj->isText());
+        $this->assertFalse($image_file_obj->isText());
+    }
 }

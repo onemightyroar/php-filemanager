@@ -360,4 +360,74 @@ class FileObject extends SplFileObject
             : base64_encode($this->getRaw())
         );
     }
+
+
+    /**
+     * Quick alias methods
+     */
+
+    /**
+     * Check if the file is an image, based on its MIME-type
+     *
+     * @access public
+     * @return boolean
+     */
+    public function isImage()
+    {
+        $mime_type = $this->getMimeType() ?: $this->detectMimeType();
+
+        return (strpos($mime_type, 'image') === 0);
+    }
+
+    /**
+     * Check if the file is audio, based on its MIME-type
+     *
+     * @access public
+     * @return boolean
+     */
+    public function isAudio()
+    {
+        $mime_type = $this->getMimeType() ?: $this->detectMimeType();
+
+        return (strpos($mime_type, 'audio') === 0);
+    }
+
+    /**
+     * Check if the file is video, based on its MIME-type
+     *
+     * @access public
+     * @return boolean
+     */
+    public function isVideo()
+    {
+        $mime_type = $this->getMimeType() ?: $this->detectMimeType();
+
+        return (strpos($mime_type, 'video') === 0);
+    }
+
+    /**
+     * Check if the file is application, based on its MIME-type
+     *
+     * @access public
+     * @return boolean
+     */
+    public function isApplication()
+    {
+        $mime_type = $this->getMimeType() ?: $this->detectMimeType();
+
+        return (strpos($mime_type, 'application') === 0);
+    }
+
+    /**
+     * Check if the file is text, based on its MIME-type
+     *
+     * @access public
+     * @return boolean
+     */
+    public function isText()
+    {
+        $mime_type = $this->getMimeType() ?: $this->detectMimeType();
+
+        return (strpos($mime_type, 'text') === 0);
+    }
 }
