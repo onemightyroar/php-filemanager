@@ -449,6 +449,7 @@ class FileObject extends SplFileObject
     /**
      * Get the extension of the file
      *
+     * @param boolean $with_dot Prepend a dot with the extension
      * @access public
      * @return string
      */
@@ -480,6 +481,22 @@ class FileObject extends SplFileObject
         }
 
         return $extension;
+    }
+
+    /**
+     * Get an obfuscated name of the file object
+     *
+     * @param boolean $with_extension Include the extension
+     * @access public
+     * @return void
+     */
+    public function getObfuscatedName($with_extension = true)
+    {
+        if ($with_extension) {
+            return $this->getHash() . $this->getExtension(true);
+        }
+
+        return $this->getHash();
     }
 
 

@@ -323,6 +323,31 @@ class FileObjectTest extends STRIPPED_FROM_HISTORY
         $this->assertContains('.', $wrapped_binary->getExtension(true));
     }
 
+    public function testGetObfuscatedName()
+    {
+        $test_file_jpg = $this->getTestFileByBaseName('photo.jpg');
+        $test_file_base64 = $this->getTestFileByBaseName('photo.base64');
+        $test_file_php = __FILE__;
+
+        $wrapped_binary = FileObject::createFromBinary(file_get_contents($test_file_jpg));
+        $wrapped_base64 = FileObject::createFromBinary(file_get_contents($test_file_base64));
+        $wrapped_binary_php = FileObject::createFromBinary(file_get_contents($test_file_php));
+        $raw_binary = new FileObject($test_file_jpg);
+        $raw_base64 = new FileObject($test_file_base64);
+        $raw_binary_php = new FileObject($test_file_php);
+
+        $this->assertSame($wrapped_binary->getObfuscatedName(false), $raw_binary->getObfuscatedName(false));
+        $this->assertSame($wrapped_base64->getObfuscatedName(false), $raw_base64->getObfuscatedName(false));
+        $this->assertSame($wrapped_binary_php->getObfuscatedName(false), $raw_binary_php->getObfuscatedName(false));
+
+        $this->assertNotSame($wrapped_binary->getObfuscatedName(false), $wrapped_base64->getObfuscatedName(false));
+        $this->assertNotSame($raw_binary->getObfuscatedName(false), $raw_base64->getObfuscatedName(false));
+
+        // With extension?
+        $this->assertNotContains('php', $raw_binary_php->getObfuscatedName(false));
+        $this->assertContains('php', $raw_binary_php->getObfuscatedName(true));
+    }
+
     public function testMimeAliases()
     {
         $image_file_obj = new FileObject($this->getTestFileByBaseName('photo.jpg'));
