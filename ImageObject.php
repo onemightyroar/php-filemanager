@@ -64,7 +64,10 @@ class ImageObject extends FileObject
      */
     public function getSize()
     {
-        return getimagesizefromstring($this->getRaw());
+        return ($this->isWrapped() ?
+            getimagesizefromstring($this->getRaw())
+            : getimagesize($this->getPathname())
+        );
     }
 
 
