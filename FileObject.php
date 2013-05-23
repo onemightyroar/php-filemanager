@@ -13,6 +13,7 @@ use finfo;
 use InvalidArgumentException;
 use RuntimeException;
 use UnexpectedValueException;
+use ReflectionObject;
 use OneMightyRoar\PhpFileManager\Exceptions\InvalidBase64EncodedDataException;
 
 /**
@@ -309,6 +310,26 @@ class FileObject extends SplFileObject
         $finfo = new finfo(FILEINFO_MIME_TYPE);
 
         return $finfo->buffer($buffer);
+    }
+
+    /**
+     * Get the file object as a PHP file resource
+     *
+     * @note This "copies" the current file as a resource, since the internal
+     * file resource (of SplFileObject) isn't available... even through reflection
+     * @see fopen()
+     * @link http://php.net/manual/en/function.fopen.php
+     * @access public
+     * @return resource
+     */
+    public function getResource($mode = 'r', $context = null)
+    {
+        // PHP's "fopen" ALSO doesn't allow NULL contexts #facepalm
+        if (null !== $context) {
+            return fopen($this->getPathname(), $mode, false, $context);
+        } else {
+            return fopen($this->getPathname(), $mode, false);
+        }
     }
 
     /**

@@ -131,6 +131,14 @@ class FileObjectTest extends AbstractFileObjectTest
     }
 
     /**
+     * @depends testCreateFromBase64Encoded
+     */
+    public function testGetResource($file_object)
+    {
+        $this->assertInternalType('resource', $file_object->getResource());
+    }
+
+    /**
      * @depends testCreateFromBinary
      */
     public function testGetWrapperInfo($file_object)
