@@ -150,7 +150,7 @@ class FileObjectTest extends AbstractFileObjectTest
 
         $this->assertGreaterThanOrEqual(3, $wrapper_info);
         $this->assertSame($test_protocol, $wrapper_info['protocol']);
-        $this->assertSame($test_mime, $wrapper_info['MIME']);
+        $this->assertSame($test_mime, $wrapper_info['mime']);
     }
 
     /**

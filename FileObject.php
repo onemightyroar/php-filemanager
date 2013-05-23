@@ -355,7 +355,7 @@ class FileObject extends SplFileObject
         return array(
             'wrapper' => $matches[0],
             'protocol' => $matches[1],
-            'MIME' => $matches[2],
+            'mime' => $matches[2],
             'base64' => !empty($matches[3]),
         );
     }
