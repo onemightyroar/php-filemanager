@@ -299,7 +299,16 @@ class FileObjectTest extends AbstractFileObjectTest
         $this->assertContains('php', $raw_binary_php->getObfuscatedName(true));
     }
 
-    public function testImageClassConverter()
+    /**
+     * @expectedException UnexpectedValueException
+     */
+    public function testImageClassConverterFails()
+    {
+        $non_image_file_obj = new FileObject(__FILE__);
+        $non_image_file_obj->getImageObject();
+    }
+
+    public function testImageClassConverterWorks()
     {
         $image_file_obj = new FileObject($this->getTestFileByBaseName('photo.jpg'));
 

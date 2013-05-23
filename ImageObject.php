@@ -8,6 +8,8 @@
 
 namespace OneMightyRoar\PhpFileManager;
 
+use UnexpectedValueException;
+
 /**
  * ImageObject
  *
@@ -18,6 +20,26 @@ namespace OneMightyRoar\PhpFileManager;
  */
 class ImageObject extends FileObject
 {
+
+    /**
+     * Constructor
+     *
+     * @see FileObject::__construct()
+     * @see SplFileObject::__construct()
+     * @param string $filename
+     * @param string $open_mode
+     * @param bool $use_include_path
+     * @param resource $context
+     * @access public
+     */
+    public function __construct($filename, $open_mode = 'r', $use_include_path = false, $context = null)
+    {
+        parent::__construct($filename, $open_mode, $use_include_path, $context);
+
+        if (!$this->isImage()) {
+            throw new UnexpectedValueException('File is not an image');
+        }
+    }
 
     /**
      * Get the image as a PHP image resource
