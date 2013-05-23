@@ -51,6 +51,15 @@ class FileObject extends SplFileObject
      */
     const DEFAULT_HASH_ALGO = 'md5';
 
+    /**
+     * The default line length to use when limiting the data
+     * returned in line-getting methods
+     *
+     * @note This has the habit of being used in N-1 contexts
+     * @const int
+     */
+    const DEFAULT_MAX_LINE_LENGTH = 8193;
+
 
     /**
      * Class properties
@@ -391,6 +400,9 @@ class FileObject extends SplFileObject
      */
     public function getRaw()
     {
+        // Save our current position
+        $position = $this->ftell();
+
         $this->rewind();
 
         $raw = '';
@@ -398,6 +410,9 @@ class FileObject extends SplFileObject
         while ($this->valid()) {
             $raw .= $this->fgets();
         }
+
+        // Go back to our original position
+        $this->fseek($position);
 
         if ($this->isWrappedHex()) {
             return hex2bin($raw);
