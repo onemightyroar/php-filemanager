@@ -299,6 +299,35 @@ class FileObjectTest extends AbstractFileObjectTest
         $this->assertContains('php', $raw_binary_php->getObfuscatedName(true));
     }
 
+    public function testImageClassConverter()
+    {
+        $image_file_obj = new FileObject($this->getTestFileByBaseName('photo.jpg'));
+
+        $this->assertNull($image_file_obj->getImageClass());
+        $this->assertTrue($image_file_obj->getImageObject() instanceof FileObject);
+    }
+
+    /**
+     * @expectedException UnexpectedValueException
+     */
+    public function testCustomImageClassConverterFails()
+    {
+        $image_file_obj = new FileObject($this->getTestFileByBaseName('photo.jpg'));
+        $image_file_obj->setImageClass('stdClass');
+    }
+
+    public function testCustomImageClassConverterWorks()
+    {
+        $test_class_name = 'OneMightyRoar\PhpFileManager\ImageObject';
+
+        $image_file_obj = new FileObject($this->getTestFileByBaseName('photo.jpg'));
+        $image_file_obj->setImageClass($test_class_name);
+
+        $this->assertSame($test_class_name, $image_file_obj->getImageClass());
+        $this->assertTrue($image_file_obj->getImageObject() instanceof FileObject);
+        $this->assertTrue($image_file_obj->getImageObject() instanceof $test_class_name);
+    }
+
     public function testMimeAliases()
     {
         $image_file_obj = new FileObject($this->getTestFileByBaseName('photo.jpg'));
