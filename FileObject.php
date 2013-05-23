@@ -143,7 +143,7 @@ class FileObject extends SplFileObject
      * @access public
      * @return FileObject
      */
-    public static function createFromBinary($raw_binary_data, $name = null)
+    public static function createFromBuffer($raw_binary_data, $name = null)
     {
         // TODO: Convert to "is_buffer" or "is_binary" once available (PHP 6)
         if (!is_string($raw_binary_data)) {
@@ -176,7 +176,7 @@ class FileObject extends SplFileObject
     /**
      * Create an instance of a FileObject from a base64 encoded string
      *
-     * @see FileObject::createFromBinary()
+     * @see FileObject::createFromBuffer()
      * @param string $base64_encoded_data
      * @param string $name
      * @throws InvalidArgumentException If the "$base64_encoded_data" isn't a string
@@ -192,7 +192,7 @@ class FileObject extends SplFileObject
 
         $decoded = static::base64Decode($base64_encoded_data);
 
-        return static::createFromBinary($decoded, $name);
+        return static::createFromBuffer($decoded, $name);
     }
 
     /**

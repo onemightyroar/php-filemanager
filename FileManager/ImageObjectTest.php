@@ -119,7 +119,7 @@ class ImageObjectTest extends AbstractFileObjectTest
         $test_file_jpg = $this->getTestFileByBaseName('photo.jpg');
         $test_file_base64 = $this->getTestFileByBaseName('photo.base64');
 
-        $wrapped_binary = ImageObject::createFromBinary(file_get_contents($test_file_jpg));
+        $wrapped_binary = ImageObject::createFromBuffer(file_get_contents($test_file_jpg));
         $wrapped_base64 = ImageObject::createFromBase64Encoded(file_get_contents($test_file_base64));
         $raw_binary = new ImageObject($test_file_jpg);
         $raw_base64_text = new ImageObject('data://image/jpeg;base64,'. file_get_contents($test_file_base64));

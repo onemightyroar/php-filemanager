@@ -13,15 +13,15 @@ use OneMightyRoar\PhpFileManager\FileObject;
 class FileObjectTest extends AbstractFileObjectTest
 {
 
-    public function testCreateFromBinary()
+    public function testcreateFromBuffer()
     {
         $test_file = $this->getTestFileByBaseName('photo.jpg');
 
         $binary_file_data = file_get_contents($test_file);
         $test_name = 'testtttttt';
 
-        $file_object = FileObject::createFromBinary($binary_file_data);
-        $file_object_with_name = FileObject::createFromBinary($binary_file_data, $test_name);
+        $file_object = FileObject::createFromBuffer($binary_file_data);
+        $file_object_with_name = FileObject::createFromBuffer($binary_file_data, $test_name);
 
         $this->assertSame(FileObject::DEFAULT_NAME, $file_object->getName());
         $this->assertSame($test_name, $file_object_with_name->getName());
@@ -139,7 +139,7 @@ class FileObjectTest extends AbstractFileObjectTest
     }
 
     /**
-     * @depends testCreateFromBinary
+     * @depends testcreateFromBuffer
      */
     public function testGetWrapperInfo($file_object)
     {
@@ -154,7 +154,7 @@ class FileObjectTest extends AbstractFileObjectTest
     }
 
     /**
-     * @depends testCreateFromBinary
+     * @depends testcreateFromBuffer
      */
     public function testIsWrapped($file_object)
     {
@@ -169,7 +169,7 @@ class FileObjectTest extends AbstractFileObjectTest
     }
 
     /**
-     * @depends testCreateFromBinary
+     * @depends testcreateFromBuffer
      */
     public function testIsWrappedHex($file_object)
     {
@@ -183,9 +183,9 @@ class FileObjectTest extends AbstractFileObjectTest
         $test_text = 'this is a test';
         $test_text_mime = 'text/donkey';
 
-        $wrapped_binary = FileObject::createFromBinary(file_get_contents($test_file_jpg));
-        $wrapped_base64_raw = FileObject::createFromBinary(base64_encode($test_text));
-        $wrapped_base64_image = FileObject::createFromBinary(file_get_contents($test_file_base64));
+        $wrapped_binary = FileObject::createFromBuffer(file_get_contents($test_file_jpg));
+        $wrapped_base64_raw = FileObject::createFromBuffer(base64_encode($test_text));
+        $wrapped_base64_image = FileObject::createFromBuffer(file_get_contents($test_file_base64));
         $raw_binary = new FileObject($test_file_jpg);
         $raw_base64 = new FileObject($test_file_base64);
         $raw_base64_text = new FileObject('data://'. $test_text_mime .';base64,'. base64_encode($test_text));
@@ -208,8 +208,8 @@ class FileObjectTest extends AbstractFileObjectTest
         $test_text = 'this is a test';
         $test_text_mime = 'text/donkey';
 
-        $wrapped_binary = FileObject::createFromBinary(file_get_contents($test_file_jpg));
-        $wrapped_base64_image = FileObject::createFromBinary(file_get_contents($test_file_base64));
+        $wrapped_binary = FileObject::createFromBuffer(file_get_contents($test_file_jpg));
+        $wrapped_base64_image = FileObject::createFromBuffer(file_get_contents($test_file_base64));
         $raw_binary = new FileObject($test_file_jpg);
         $raw_base64_text = new FileObject('data://'. $test_text_mime .';base64,'. base64_encode($test_text));
         $raw_text = new FileObject('data://'. $test_text_mime .','. $test_text);
@@ -230,8 +230,8 @@ class FileObjectTest extends AbstractFileObjectTest
         $test_file_jpg = $this->getTestFileByBaseName('photo.jpg');
         $test_file_base64 = $this->getTestFileByBaseName('photo.base64');
 
-        $wrapped_binary = FileObject::createFromBinary(file_get_contents($test_file_jpg));
-        $wrapped_base64 = FileObject::createFromBinary(file_get_contents($test_file_base64));
+        $wrapped_binary = FileObject::createFromBuffer(file_get_contents($test_file_jpg));
+        $wrapped_base64 = FileObject::createFromBuffer(file_get_contents($test_file_base64));
         $raw_binary = new FileObject($test_file_jpg);
         $raw_base64 = new FileObject($test_file_base64);
 
@@ -247,8 +247,8 @@ class FileObjectTest extends AbstractFileObjectTest
         $test_file_jpg = $this->getTestFileByBaseName('photo.jpg');
         $test_file_base64 = $this->getTestFileByBaseName('photo.base64');
 
-        $wrapped_binary = FileObject::createFromBinary(file_get_contents($test_file_jpg));
-        $wrapped_base64 = FileObject::createFromBinary(file_get_contents($test_file_base64));
+        $wrapped_binary = FileObject::createFromBuffer(file_get_contents($test_file_jpg));
+        $wrapped_base64 = FileObject::createFromBuffer(file_get_contents($test_file_base64));
         $raw_binary = new FileObject($test_file_jpg);
         $raw_base64 = new FileObject($test_file_base64);
 
@@ -263,9 +263,9 @@ class FileObjectTest extends AbstractFileObjectTest
         $test_file_base64 = $this->getTestFileByBaseName('photo.base64');
         $test_file_php = __FILE__;
 
-        $wrapped_binary = FileObject::createFromBinary(file_get_contents($test_file_jpg));
-        $wrapped_base64 = FileObject::createFromBinary(file_get_contents($test_file_base64));
-        $wrapped_binary_php = FileObject::createFromBinary(file_get_contents($test_file_php));
+        $wrapped_binary = FileObject::createFromBuffer(file_get_contents($test_file_jpg));
+        $wrapped_base64 = FileObject::createFromBuffer(file_get_contents($test_file_base64));
+        $wrapped_binary_php = FileObject::createFromBuffer(file_get_contents($test_file_php));
         $raw_binary = new FileObject($test_file_jpg);
         $raw_base64 = new FileObject($test_file_base64);
         $raw_binary_php = new FileObject($test_file_php);
@@ -288,9 +288,9 @@ class FileObjectTest extends AbstractFileObjectTest
         $test_file_base64 = $this->getTestFileByBaseName('photo.base64');
         $test_file_php = __FILE__;
 
-        $wrapped_binary = FileObject::createFromBinary(file_get_contents($test_file_jpg));
-        $wrapped_base64 = FileObject::createFromBinary(file_get_contents($test_file_base64));
-        $wrapped_binary_php = FileObject::createFromBinary(file_get_contents($test_file_php));
+        $wrapped_binary = FileObject::createFromBuffer(file_get_contents($test_file_jpg));
+        $wrapped_base64 = FileObject::createFromBuffer(file_get_contents($test_file_base64));
+        $wrapped_binary_php = FileObject::createFromBuffer(file_get_contents($test_file_php));
         $raw_binary = new FileObject($test_file_jpg);
         $raw_base64 = new FileObject($test_file_base64);
         $raw_binary_php = new FileObject($test_file_php);
@@ -348,7 +348,7 @@ class FileObjectTest extends AbstractFileObjectTest
     public function testMimeAliases()
     {
         $image_file_obj = new FileObject($this->getTestFileByBaseName('photo.jpg'));
-        $text_file_obj = FileObject::createFromBinary('test and stuff');
+        $text_file_obj = FileObject::createFromBuffer('test and stuff');
 
         $this->assertTrue($image_file_obj->isImage());
         $this->assertFalse($text_file_obj->isImage());
