@@ -122,11 +122,18 @@ class FileObject extends SplFileObject
 
         $this->setName($this->getFilename());
 
-        // Try and auto-detect the MIME-type
-        try {
-            $this->setMimeType($this->detectMimeType());
-        } catch (RuntimeException $e) {
-            // Must have the fileinfo extension loaded to automatically detect the MIME type
+        if ($this->isWrapped()) {
+            // Get the MIME-type from the wrapper
+            $info = $this->getWrapperInfo();
+
+            $this->setMimeType($info['mime']);
+        } else {
+            // Try and auto-detect the MIME-type
+            try {
+                $this->setMimeType($this->detectMimeType());
+            } catch (RuntimeException $e) {
+                // Must have the fileinfo extension loaded to automatically detect the MIME type
+            }
         }
     }
 
