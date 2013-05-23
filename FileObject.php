@@ -17,6 +17,8 @@ use OneMightyRoar\PhpFileManager\Exceptions\InvalidBase64EncodedDataException;
 /**
  * FileObject
  *
+ * Class to make dealing with files and protocol wrapped data much easier and convenient
+ *
  * @uses SplFileObject
  * @package OneMightyRoar\PhpFileManager
  */
