@@ -12,6 +12,7 @@ use SplFileObject;
 use finfo;
 use InvalidArgumentException;
 use RuntimeException;
+use UnexpectedValueException;
 use OneMightyRoar\PhpFileManager\Exceptions\InvalidBase64EncodedDataException;
 
 /**
@@ -76,6 +77,14 @@ class FileObject extends SplFileObject
      */
     protected $mime_type;
 
+    /**
+     * The class to use when converting the object to an image
+     *
+     * @var string
+     * @access protected
+     */
+    protected $image_class;
+
 
     /**
      * Class methods
@@ -119,12 +128,14 @@ class FileObject extends SplFileObject
      *
      * @param string $raw_binary_data
      * @param string $name
+     * @throws InvalidArgumentException If the "$raw_binary_data" isn't a string
      * @static
      * @access public
      * @return FileObject
      */
     public static function createFromBinary($raw_binary_data, $name = null)
     {
+        // TODO: Convert to "is_buffer" or "is_binary" once available (PHP 6)
         if (!is_string($raw_binary_data)) {
             throw new InvalidArgumentException('Expected a raw binary string');
         }
@@ -158,6 +169,7 @@ class FileObject extends SplFileObject
      * @see FileObject::createFromBinary()
      * @param string $base64_encoded_data
      * @param string $name
+     * @throws InvalidArgumentException If the "$base64_encoded_data" isn't a string
      * @static
      * @access public
      * @return FileObject
@@ -416,6 +428,7 @@ class FileObject extends SplFileObject
      * Get a hash representation of the file's data
      *
      * @param string $algo Defaults to self::DEFAULT_HASH_ALGO
+     * @throws InvalidArgumentException If the "$algo" isn't a system supported hashing algorithm
      * @access public
      * @return string
      */
@@ -433,6 +446,7 @@ class FileObject extends SplFileObject
      * Get a hash representation of the file's name
      *
      * @param string $algo Defaults to self::DEFAULT_HASH_ALGO
+     * @throws InvalidArgumentException If the "$algo" isn't a system supported hashing algorithm
      * @access public
      * @return string
      */
@@ -499,6 +513,99 @@ class FileObject extends SplFileObject
         }
 
         return $this->getHash();
+    }
+
+
+    /**
+     * Sub-class converters
+     */
+
+    /**
+     * Verify that a class is derived from the current class
+     *
+     * @param string|object $class
+     * @throws UnexpectedValueException If the "$class" isn't a class derived from the current class
+     * @access protected
+     * @return boolean
+     */
+    protected function verifyIsDerivedClass($class)
+    {
+        $derived = true;
+
+        if (is_string($class)) {
+            if (!in_array(get_class($this), class_parents($class))) {
+                $derived = false;
+            }
+        } else {
+            if (!($class instanceof $this)) {
+                $derived = false;
+            }
+        }
+
+        if (!$derived) {
+            // Grab the backtrace
+            $backtrace = debug_backtrace();
+            $last = $backtrace[1];
+
+            // Emulate a PHP SPL/internal-style exception
+            throw new UnexpectedValueException(
+                $last['class'] .'::'. $last['function']
+                .'() expects parameter to be a class name derived from '
+                . get_class($this) .', \''. $last['args'][0] .'\' given'
+            );
+        }
+
+        return $derived;
+    }
+
+    /**
+     * Get the image class
+     *
+     * @return string
+     */
+    public function getImageClass()
+    {
+        return $this->image_class;
+    }
+    
+    /**
+     * Set the image class
+     *
+     * This is meant to be compatible with the SplFileInfo implementation
+     *
+     * @link http://www.php.net/manual/en/splfileinfo.setfileclass.php
+     * @see SplFileInfo::setFileClass()
+     * @param string $image_class The class name to use
+     * @return FileObject
+     */
+    public function setImageClass($image_class)
+    {
+        $this->verifyIsDerivedClass($image_class);
+        $this->image_class = $image_class;
+
+        return $this;
+    }
+
+    /**
+     * Get an image file object from this file object
+     *
+     * @see FileObject::__construct()
+     * @see SplFileObject::__construct()
+     * @param string $open_mode
+     * @param bool $use_include_path
+     * @param resource $context
+     * @access public
+     * @return ImageObject
+     */
+    public function getImageObject($open_mode = 'r', $use_include_path = false, $context = null)
+    {
+        if (null !== $this->getImageClass()) {
+            $class_name = $this->getImageClass();
+
+            return new $class_name($this->getPathname(), $open_mode, $use_include_path, $context);
+        }
+
+        return new ImageObject($this->getPathname(), $open_mode, $use_include_path, $context);
     }
 
 
