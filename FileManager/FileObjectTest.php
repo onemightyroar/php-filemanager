@@ -64,6 +64,69 @@ class FileObjectTest extends AbstractFileObjectTest
         return $file_object_with_name;
     }
 
+    public function testCreateFromResource()
+    {
+        $test_file_resource = fopen($this->getTestFileByBaseName('photo.base64'), 'r');
+        $test_name = 'testtttttt';
+
+        $file_object = FileObject::createFromResource($test_file_resource);
+        $file_object_with_name = FileObject::createFromResource($test_file_resource, $test_name);
+
+        $this->assertSame(FileObject::DEFAULT_NAME, $file_object->getName());
+        $this->assertSame($test_name, $file_object_with_name->getName());
+
+        $this->assertSame(
+            fread($test_file_resource, filesize($this->getTestFileByBaseName('photo.base64'))),
+            $file_object->getRaw()
+        );
+
+        rewind($test_file_resource);
+
+        $this->assertSame(
+            fread($test_file_resource, filesize($this->getTestFileByBaseName('photo.base64'))),
+            $file_object_with_name->getRaw()
+        );
+
+        return $file_object_with_name;
+    }
+
+    public function testCreateFromDetectedType()
+    {
+        $test_file_name = $this->getTestFileByBaseName('photo.jpg');
+        $test_base64_file_name = $this->getTestFileByBaseName('photo.base64');
+        $test_file_resource = fopen($test_file_name, 'r');
+        $test_file_buffer = file_get_contents($test_file_name);
+        $test_base64_file_buffer = file_get_contents($test_base64_file_name);
+        $test_name = 'testtttttt';
+
+        $file_object = FileObject::createFromDetectedType($test_file_name, $test_name);
+        $file_object_resource = FileObject::createFromDetectedType($test_file_resource, $test_name);
+        $file_object_buffer = FileObject::createFromDetectedType($test_file_buffer, $test_name);
+        $file_object_base64_buffer = FileObject::createFromDetectedType($test_base64_file_buffer, $test_name);
+
+        $this->assertSame($test_name, $file_object->getName());
+        $this->assertSame($test_name, $file_object_resource->getName());
+        $this->assertSame($test_name, $file_object_buffer->getName());
+        $this->assertSame($test_name, $file_object_base64_buffer->getName());
+
+        // Transitively check equality
+        $this->assertSame($file_object->getRaw(), $file_object_resource->getRaw());
+        $this->assertSame($file_object->getRaw(), $file_object_buffer->getRaw());
+        $this->assertSame($file_object->getRaw(), $file_object_base64_buffer->getRaw());
+
+        return $file_object;
+    }
+
+    public function testIsBase64String()
+    {
+        $test_file_name = $this->getTestFileByBaseName('photo.jpg');
+        $test_base64_file_name = $this->getTestFileByBaseName('photo.base64');
+
+        $this->assertFalse(FileObject::isBase64String(file_get_contents($test_file_name)));
+        $this->assertTrue(FileObject::isBase64String(base64_encode(file_get_contents($test_file_name))));
+        $this->assertTrue(FileObject::isBase64String(file_get_contents($test_base64_file_name)));
+    }
+
     public function testGetSetName()
     {
         $test_name = 'dog';

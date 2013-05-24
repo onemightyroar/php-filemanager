@@ -67,6 +67,18 @@ class FileObject extends SplFileObject
      */
 
     /**
+     * The resource types that are compatible with this class
+     *
+     * @static
+     * @var array
+     * @access protected
+     */
+    protected static $compatible_resource_types = array(
+        'file',
+        'stream',
+    );
+
+    /**
      * The actual "name" of the file object
      *
      * As in, not necessarily the name of a referenced file pointer
@@ -203,6 +215,109 @@ class FileObject extends SplFileObject
     }
 
     /**
+     * Create an instance of a FileObject from another resource
+     *
+     * This allows the creation of a FileObject as a new temporary file
+     * using another resource as the source of the data
+     * 
+     * NOTE! This will create a completely different "resource" by copying
+     * the data from the passed resource. Make sure the resource is readable
+     *
+     * @param resource $resource
+     * @param string $name
+     * @throws InvalidArgumentException If the passed "resource" isn't in fact a resource
+     * @throws UnexpectedValueException If the resource type isn't supported
+     * @static
+     * @access public
+     * @return FileObject
+     */
+    public static function createFromResource($resource, $name = null)
+    {
+        if (!is_resource($resource)) {
+            throw new InvalidArgumentException('Expected a resource');
+
+        } elseif (!in_array(get_resource_type($resource), static::$compatible_resource_types)) {
+            throw new UnexpectedValueException(
+                'Incompatible resource type. Expected one of: ('
+                . implode(',', static::$compatible_resource_types)
+                . '), but was given: '. get_resource_type($resource)
+            );
+        }
+
+        // Create a temporary file name if none was given
+        $name = $name ?: static::DEFAULT_NAME;
+
+        $object = new static('php://temp', 'r+');
+        $object->setName($name);
+
+        // Save the position of the passed file pointer
+        $resource_position = ftell($resource);
+
+        // Copy the data from the given resource into our new object
+        rewind($resource);
+        while (!feof($resource)) {
+            $object->fwrite(fread($resource, static::DEFAULT_MAX_LINE_LENGTH));
+        }
+
+        fseek($resource, $resource_position);
+
+        // Try and auto-detect the MIME-type
+        try {
+            $object->setMimeType($object->detectMimeType());
+        } catch (RuntimeException $e) {
+            // Must have the fileinfo extension loaded to automatically detect the MIME type
+        }
+
+        return $object;
+    }
+
+    /**
+     * Create an instance of a FileObject from a generic string
+     *
+     * This will try its best to create a valid FileObject from a given string
+     * by attempting to detect the given type, whether it be a:
+     *  - File name
+     *  - Native PHP resource
+     *  - Binary string buffer
+     *  - Base64-encoded string
+     *
+     * @param string $representation
+     * @param string $name
+     * @static
+     * @access public
+     * @return FileObject
+     */
+    public static function createFromDetectedType($representation, $name = null)
+    {
+        // Suppress warnings/errors from path checking functions
+        if (@is_readable($representation) && @is_file($representation)) {
+            $object = new static($representation);
+
+            if (null !== $name) {
+                $object->setName($name);
+            }
+
+            return $object;
+
+        } elseif (is_resource($representation)) {
+            return static::createFromResource($representation, $name);
+
+        } elseif (static::isBase64String($representation)) {
+            return static::createFromBase64Encoded($representation, $name);
+
+        } elseif (is_string($representation)) {
+            // TODO: Convert to "is_buffer" or "is_binary" once available (PHP 6)
+
+            return static::createFromBuffer($representation, $name);
+
+        } else {
+            throw new UnexpectedValueException(
+                'Incompatible or unknown type. '. get_type($representation)
+            );
+        }
+    }
+
+    /**
      * A consistent and dependable way to decode base64 data
      *
      * @param string $base64_encoded_data
@@ -220,6 +335,23 @@ class FileObject extends SplFileObject
         }
 
         return $decoded;
+    }
+
+    /**
+     * Naively check if a string is base64 encoded or not
+     *
+     * There is NO (at least in my findings) 100% positive way
+     * to verify if a string is in fact a base64 encoded string
+     * or not, so... this does the best it can to decide
+     *
+     * @param string $string
+     * @static
+     * @access public
+     * @return boolean
+     */
+    public static function isBase64String($string)
+    {
+        return (base64_decode($string, true) !== false);
     }
 
     /**
