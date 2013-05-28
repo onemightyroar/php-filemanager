@@ -281,6 +281,13 @@ class FileObjectTest extends AbstractFileObjectTest
         $this->assertTrue($file_object->isWrappedHex());
     }
 
+    public function testIsTemp()
+    {
+        $file_object = new FileObject('php://temp', 'r+');
+
+        $this->assertTrue($file_object->isTemp());
+    }
+
     public function testGetRaw()
     {
         $test_file_jpg = $this->getTestFileByBaseName('photo.jpg');

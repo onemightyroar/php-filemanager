@@ -29,9 +29,9 @@ class ImageObjectTest extends AbstractFileObjectTest
     {
         $image_obj = new ImageObject($this->getTestFile());
 
-        $this->assertCount(7, $image_obj->getSize());
+        $this->assertCount(7, $image_obj->getImageSize());
 
-        return $image_obj->getSize();
+        return $image_obj->getImageSize();
     }
 
     /**

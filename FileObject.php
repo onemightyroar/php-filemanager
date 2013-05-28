@@ -46,6 +46,13 @@ class FileObject extends SplFileObject
     const DATA_WRAPPER_REGEX = '/^([A-Za-z0-9]+):[\/]*(.*?)(?:;(.*))?,/';
 
     /**
+     * The regular expression used to check if a wrapper is a PHP temporary file
+     *
+     * @const string
+     */
+    const TEMP_WRAPPER_REGEX = '/^(php):(\/\/)?(memory|temp)/';
+
+    /**
      * The default hashing algorithm to use for hashing methods
      *
      * @const string
@@ -456,7 +463,7 @@ class FileObject extends SplFileObject
 
         $finfo = new finfo(FILEINFO_MIME_TYPE);
 
-        return ($this->isWrapped() ?
+        return (($this->isWrapped() || $this->isTemp()) ?
             $finfo->buffer($this->getRaw())
             : $finfo->file($this->getPathname())
         );
@@ -577,6 +584,22 @@ class FileObject extends SplFileObject
         }
 
         return false;
+    }
+
+    /**
+     * Quick check to see if the file object is a PHP
+     * temporary file
+     *
+     * @access public
+     * @return boolean
+     */
+    public function isTemp()
+    {
+        // Only get the first 100 characters of the string,
+        // as it could be a full hex representation of a file
+        $string = substr($this->getPathname(), 0, 100);
+
+        return (bool) preg_match(static::TEMP_WRAPPER_REGEX, $string);
     }
 
     /**
