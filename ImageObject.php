@@ -44,12 +44,17 @@ class ImageObject extends FileObject
     /**
      * Get the image as a PHP image resource
      *
+     * This method has "dummy" parameters to comply with PHP strict standards, 
+     * but does not actually use them in any capacity
+     *
      * @see imagecreatefromstring()
      * @link http://www.php.net/manual/en/function.imagecreatefromstring.php
+     * @param string $mode
+     * @param resource $context
      * @access public
      * @return resource
      */
-    public function getResource()
+    public function getResource($mode = 'r', $context = null)
     {
         return imagecreatefromstring($this->getRaw());
     }
