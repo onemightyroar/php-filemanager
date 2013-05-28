@@ -18,11 +18,11 @@ class ImageObjectTest extends AbstractFileObjectTest
         return $this->getTestFileByBaseName('photo.jpg');
     }
 
-    public function testGetResource()
+    public function testGetImageResource()
     {
         $image_obj = new ImageObject($this->getTestFile());
 
-        $this->assertInternalType('resource', $image_obj->getResource());
+        $this->assertInternalType('resource', $image_obj->getImageResource());
     }
 
     public function testGetSize()

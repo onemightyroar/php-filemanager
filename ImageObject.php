@@ -49,12 +49,10 @@ class ImageObject extends FileObject
      *
      * @see imagecreatefromstring()
      * @link http://www.php.net/manual/en/function.imagecreatefromstring.php
-     * @param string $mode
-     * @param resource $context
      * @access public
      * @return resource
      */
-    public function getResource($mode = 'r', $context = null)
+    public function getImageResource()
     {
         return imagecreatefromstring($this->getRaw());
     }
