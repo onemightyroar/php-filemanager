@@ -568,7 +568,7 @@ class FileObject extends SplFileObject
      */
     public function isWrappedHex()
     {
-        if ($this->isWrapped()) {
+        if ($this->isWrapped() && !$this->isWrappedBase64()) {
 
             return ctype_xdigit(
                 // Grab the wrapped data, but strip the protocol from the beginning
