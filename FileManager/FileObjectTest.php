@@ -97,22 +97,30 @@ class FileObjectTest extends AbstractFileObjectTest
         $test_file_resource = fopen($test_file_name, 'r');
         $test_file_buffer = file_get_contents($test_file_name);
         $test_base64_file_buffer = file_get_contents($test_base64_file_name);
+        $test_protocol_wrapped_buffer = 'data://image/jpeg,'. bin2hex($test_file_buffer);
+        $test_base64_protocol_wrapped_buffer = 'data://image/jpeg;base64,'. $test_base64_file_buffer;
         $test_name = 'testtttttt';
 
         $file_object = FileObject::createFromDetectedType($test_file_name, $test_name);
         $file_object_resource = FileObject::createFromDetectedType($test_file_resource, $test_name);
         $file_object_buffer = FileObject::createFromDetectedType($test_file_buffer, $test_name);
         $file_object_base64_buffer = FileObject::createFromDetectedType($test_base64_file_buffer, $test_name);
+        $file_object_protocol_wrapped_buffer = FileObject::createFromDetectedType($test_protocol_wrapped_buffer, $test_name);
+        $file_object_protocol_wrapped_base64_buffer = FileObject::createFromDetectedType($test_base64_protocol_wrapped_buffer, $test_name);
 
         $this->assertSame($test_name, $file_object->getName());
         $this->assertSame($test_name, $file_object_resource->getName());
         $this->assertSame($test_name, $file_object_buffer->getName());
         $this->assertSame($test_name, $file_object_base64_buffer->getName());
+        $this->assertSame($test_name, $file_object_protocol_wrapped_buffer->getName());
+        $this->assertSame($test_name, $file_object_protocol_wrapped_base64_buffer->getName());
 
         // Transitively check equality
         $this->assertSame($file_object->getRaw(), $file_object_resource->getRaw());
         $this->assertSame($file_object->getRaw(), $file_object_buffer->getRaw());
         $this->assertSame($file_object->getRaw(), $file_object_base64_buffer->getRaw());
+        $this->assertSame($file_object->getRaw(), $file_object_protocol_wrapped_buffer->getRaw());
+        $this->assertSame($file_object->getRaw(), $file_object_protocol_wrapped_base64_buffer->getRaw());
 
         return $file_object;
     }
@@ -125,6 +133,40 @@ class FileObjectTest extends AbstractFileObjectTest
         $this->assertFalse(FileObject::isBase64String(file_get_contents($test_file_name)));
         $this->assertTrue(FileObject::isBase64String(base64_encode(file_get_contents($test_file_name))));
         $this->assertTrue(FileObject::isBase64String(file_get_contents($test_base64_file_name)));
+    }
+
+    public function testIsProtocolWrappedString()
+    {
+        $protocol_wrapped_strings = array(
+            'valid' => array(
+                'data://image/jpeg,ffd8ffe000',
+                'data:image/jpeg,asdasd',
+                'ftp:text/plain;base64,asasdasdasd',
+                'data:image/png;base64,asdasd',
+                'data:text/html;charset=utf-8,',
+                'data:image/png;charset=utf-8;base64,',
+                'data:image/png;base64;charset=utf-8,',
+                'data:,asdasdasd',
+                'file:image/jpeg,asdasd',
+                'http:image/jpeg,asdasd',
+                'ssh2:image/jpeg,asdasd',
+                'expect:image/jpeg,asdasd',
+            ),
+            'invalid' => array(
+                'asdasd',
+                '012312312',
+                base64_encode('test'),
+                'data:asdasdasd',
+            ),
+        );
+
+        foreach ($protocol_wrapped_strings['valid'] as $valid) {
+            $this->assertTrue(FileObject::isProtocolWrappedString($valid));
+        }
+
+        foreach ($protocol_wrapped_strings['invalid'] as $invalid) {
+            $this->assertFalse(FileObject::isProtocolWrappedString($invalid));
+        }
     }
 
     public function testGetSetName()

@@ -289,27 +289,38 @@ class FileObject extends SplFileObject
      */
     public static function createFromDetectedType($representation, $name = null)
     {
-        // Suppress warnings/errors from path checking functions
-        if (@is_readable($representation) && @is_file($representation)) {
-            $object = new static($representation);
+        if (is_resource($representation)) {
+            /**
+             * Resource types
+             */
 
-            if (null !== $name) {
-                $object->setName($name);
-            }
-
-            return $object;
-
-        } elseif (is_resource($representation)) {
             return static::createFromResource($representation, $name);
 
-        } elseif (static::isBase64String($representation)) {
-            return static::createFromBase64Encoded($representation, $name);
-
         } elseif (is_string($representation)) {
-            // TODO: Convert to "is_buffer" or "is_binary" once available (PHP 6)
+            /**
+             * String types
+             */
 
-            return static::createFromBuffer($representation, $name);
+            // Suppress warnings/errors from path checking functions
+            if ((@is_readable($representation) && @is_file($representation))
+                || (static::isProtocolWrappedString($representation))) {
 
+                $object = new static($representation);
+
+                if (null !== $name) {
+                    $object->setName($name);
+                }
+
+                return $object;
+
+            } elseif (static::isBase64String($representation)) {
+                return static::createFromBase64Encoded($representation, $name);
+
+            } else {
+                // TODO: Convert to "is_buffer" or "is_binary" once available (PHP 6)
+
+                return static::createFromBuffer($representation, $name);
+            }
         } else {
             throw new UnexpectedValueException(
                 'Incompatible or unknown type. '. get_type($representation)
@@ -352,6 +363,23 @@ class FileObject extends SplFileObject
     public static function isBase64String($string)
     {
         return (base64_decode($string, true) !== false);
+    }
+
+    /**
+     * Check if a string is a "protocol wrapped" string
+     *
+     * @param string $string
+     * @static
+     * @access public
+     * @return boolean
+     */
+    public static function isProtocolWrappedString($string)
+    {
+        // Only get the first 100 characters of the string,
+        // as it could be a full hex representation of a file
+        $string = substr($string, 0, 100);
+
+        return (bool) preg_match(static::DATA_WRAPPER_REGEX, $string);
     }
 
     /**
@@ -458,6 +486,8 @@ class FileObject extends SplFileObject
      * file resource (of SplFileObject) isn't available... even through reflection
      * @see fopen()
      * @link http://php.net/manual/en/function.fopen.php
+     * @param string $mode
+     * @param resource $context
      * @access public
      * @return resource
      */
