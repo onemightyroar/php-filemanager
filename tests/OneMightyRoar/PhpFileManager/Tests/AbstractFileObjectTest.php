@@ -2,15 +2,15 @@
 
 namespace OneMightyRoar\PhpFileManager\Tests;
 
-use STRIPPED_FROM_HISTORY;
+use PHPUnit_Framework_TestCase;
 
 /**
  * AbstractFileObjectTest
  *
- * @uses STRIPPED_FROM_HISTORY
+ * @uses PHPUnit_Framework_TestCase
  * @package OneMightyRoar\PhpFileManager\Tests
  */
-abstract class AbstractFileObjectTest extends STRIPPED_FROM_HISTORY
+abstract class AbstractFileObjectTest extends PHPUnit_Framework_TestCase
 {
 
     const TEST_DATA_FILES_DIRECTORY = '/TestDataFiles/';
