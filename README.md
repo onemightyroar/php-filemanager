@@ -1,5 +1,7 @@
 # PhpFileManager
 
+[![Build Status](https://travis-ci.org/onemightyroar/php-filemanager.png?branch=master)](https://travis-ci.org/onemightyroar/php-filemanager)
+
 A simple library to give PHP file handling a less painful, [OOP-style][oop], more consistent API and feature-set
 
 ## Getting started
