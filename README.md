@@ -6,7 +6,7 @@ A simple library to give PHP file handling a less painful, [OOP-style][oop], mor
 
 ## Getting started
 
-1. PHP 5.3.x is required
+1. PHP 5.4.x is [required][php54-required]
 2. Install using [Composer](#composer-installation) (recommended) or manually
 
 ## Composer Installation
@@ -43,3 +43,4 @@ A simple library to give PHP file handling a less painful, [OOP-style][oop], mor
 
 
  [oop]: http://www.php.net/manual/en/oop5.intro.php
+ [php54-required]: https://github.com/onemightyroar/php-filemanager/pull/1
