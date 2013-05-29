@@ -1,0 +1,24 @@
+{
+   "name": "onemightyroar/php-filemanager",
+   "description": "Object Oriented File Management",
+   "type": "library",
+   "keywords": ["PhpFileManger", "PhpFileObject", "SplFileObject", "files", "images", "oop"],
+   "homepage": "http://onemightyroar.com/",
+   "license": "MIT",
+   "authors": [
+      {
+         "name": "Trevor N. Suarez",
+         "email": "trevor@onemightyroar.com",
+         "homepage": "http://about.me/tnsuarez"
+      }
+   ],
+   "require": {
+      "php": ">=5.4.0"
+   },
+   "require-dev": {
+      "phpunit/phpunit": "3.7.x"
+   },
+   "autoload": {
+      "psr-0": { "OneMightyRoar\\PhpFileManager\\": "src/" }
+   }
+}
