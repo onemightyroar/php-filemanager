@@ -86,6 +86,19 @@ class FileObject extends SplFileObject
     );
 
     /**
+     * The protocol wrappers that support "stat" operations
+     *
+     * @static
+     * @var array
+     * @access protected
+     */
+    protected static $stat_able_protocols = array(
+        'file',
+        'phar',
+        'rar',
+    );
+
+    /**
      * The actual "name" of the file object
      *
      * As in, not necessarily the name of a referenced file pointer
@@ -741,6 +754,30 @@ class FileObject extends SplFileObject
         }
 
         return $this->getHash();
+    }
+
+    /**
+     * Get the size of the file object
+     *
+     * This overrides the default "getSize()" method in SplFileInfo
+     * that is inherited by this class, so that getting the file size
+     * will work on non-"fstat"-able file types and stream wrappers
+     *
+     * @access public
+     * @return int
+     */
+    public function getSize()
+    {
+        if ($this->isWrapped() || $this->isTemp()) {
+            $wrapper_info = $this->getWrapperInfo();
+
+            if (!in_array($wrapper_info['protocol'], static::$stat_able_protocols)) {
+                return strlen($this->getRaw());
+            }
+        }
+
+        // Just call our parent, otherwise
+        return parent::getSize();
     }
 
 

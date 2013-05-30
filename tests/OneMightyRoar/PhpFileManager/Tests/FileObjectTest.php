@@ -122,7 +122,17 @@ class FileObjectTest extends AbstractFileObjectTest
         $this->assertSame($file_object->getRaw(), $file_object_protocol_wrapped_buffer->getRaw());
         $this->assertSame($file_object->getRaw(), $file_object_protocol_wrapped_base64_buffer->getRaw());
 
-        return $file_object;
+        return array(
+            'name' => $test_name,
+            'objects' => array(
+                'file_object' => $file_object,
+                'file_object_resource' => $file_object_resource,
+                'file_object_buffer' => $file_object_buffer,
+                'file_object_base64_buffer' => $file_object_base64_buffer,
+                'file_object_protocol_wrapped_buffer' => $file_object_protocol_wrapped_buffer,
+                'file_object_protocol_wrapped_base64_buffer' => $file_object_protocol_wrapped_base64_buffer,
+            ),
+        );
     }
 
     public function testIsBase64String()
@@ -417,6 +427,26 @@ class FileObjectTest extends AbstractFileObjectTest
         // With extension?
         $this->assertNotContains('php', $raw_binary_php->getObfuscatedName(false));
         $this->assertContains('php', $raw_binary_php->getObfuscatedName(true));
+    }
+
+    /**
+     * @depends testCreateFromDetectedType
+     */
+    public function testGetSize($data)
+    {
+        $last_size = null;
+
+        foreach ($data['objects'] as $data) {
+            $this_size = $data->getSize();
+
+            $this->assertGreaterThan(0, $this_size);
+
+            if (null !== $last_size) {
+                $this->assertEquals($last_size, $this_size);
+            }
+
+            $last_size = $this_size;
+        }
     }
 
     /**
