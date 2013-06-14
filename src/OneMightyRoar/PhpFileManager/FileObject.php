@@ -343,7 +343,7 @@ class FileObject extends SplFileObject
             }
         } else {
             throw new UnexpectedValueException(
-                'Incompatible or unknown type. '. get_type($representation)
+                'Incompatible or unknown type. '. gettype($representation)
             );
         }
     }
