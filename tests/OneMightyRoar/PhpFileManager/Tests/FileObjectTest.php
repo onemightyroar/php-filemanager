@@ -394,10 +394,15 @@ class FileObjectTest extends AbstractFileObjectTest
 
         $this->assertSame('jpeg', $wrapped_binary->getExtension());
         $this->assertSame('plain', $wrapped_base64->getExtension());
-        $this->assertSame('c++', $wrapped_binary_php->getExtension());
         $this->assertSame('jpg', $raw_binary->getExtension());
         $this->assertSame('base64', $raw_base64->getExtension());
         $this->assertSame('php', $raw_binary_php->getExtension());
+
+        /**
+         * __FILE__ may show as C++ or PHP, depending on the version
+         * This should be fixed as of PHP 5.4.15 or 5.4.16 (not exactly sure)
+         */
+        $this->assertTrue(in_array($wrapped_binary_php->getExtension(), array('c++', 'php')));
 
         // With dot?
         $this->assertNotContains('.', $wrapped_binary->getExtension(false));
