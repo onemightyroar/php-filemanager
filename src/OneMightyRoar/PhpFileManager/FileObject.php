@@ -202,8 +202,13 @@ class FileObject extends SplFileObject
             // Must have the fileinfo extension loaded to automatically detect the MIME type
         }
 
+        // Only convert binary to hex if its not plain text
+        if (strpos($mime_type, 'text') !== 0 || static::isBase64String($raw_binary_data)) {
+            $raw_binary_data = bin2hex($raw_binary_data);
+        }
+
         // Wrap our binary data in a SplFileObject compatible data stream
-        $stream_wrapped = 'data://'. $mime_type .','. bin2hex($raw_binary_data);
+        $stream_wrapped = 'data://'. $mime_type .','. rawurlencode($raw_binary_data);
 
         $object = new static($stream_wrapped, 'r');
         $object->setName($name);
@@ -716,8 +721,6 @@ class FileObject extends SplFileObject
 
         if (null !== $this->getName() && strpos($this->getName(), '.') !== false) {
             $extension = substr(strrchr($this->getName(), '.'), 1);
-        } else {
-            $extension = parent::getExtension();
         }
 
         // Is our extension still "empty"?
