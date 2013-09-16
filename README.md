@@ -1,6 +1,8 @@
 # PhpFileManager
 
 [![Build Status](https://travis-ci.org/onemightyroar/php-filemanager.png?branch=master)](https://travis-ci.org/onemightyroar/php-filemanager)
+[![Total Downloads](https://poser.pugx.org/onemightyroar/php-filemanager/downloads.png)](https://packagist.org/packages/onemightyroar/php-filemanager)
+[![Latest Stable Version](https://poser.pugx.org/onemightyroar/php-filemanager/v/stable.png)](https://packagist.org/packages/onemightyroar/php-filemanager)
 
 A simple library to give PHP file handling a less painful, [OOP-style][oop], more consistent API and feature-set
 
