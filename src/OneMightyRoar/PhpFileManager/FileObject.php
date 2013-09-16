@@ -685,7 +685,10 @@ class FileObject extends SplFileObject
             throw new InvalidArgumentException('Hash algorithm not supported by your system');
         }
 
-        return hash($algo, $this->getRaw());
+        return (($this->isWrapped() || $this->isTemp()) ?
+            hash($algo, $this->getRaw())
+            : hash_file($algo, $this->getPathname())
+        );
     }
 
     /**
